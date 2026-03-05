@@ -21,5 +21,5 @@ and robustness of the app such as:
 - Improved UI spacing and touch targets for mobile usability
 
 These additions were implemented to improve UI/UX and
-practice more robust application behaviour beyond minimum
+practice more robust app behaviour beyond minimum
 assignment requirements.
