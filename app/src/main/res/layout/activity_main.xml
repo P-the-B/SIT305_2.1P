@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F4F6FB">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <!-- app title -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Travel Companion Converter"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="#1A237E"
+            android:gravity="center"
+            android:layout_marginBottom="24dp" />
+
+        <!-- card container -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#FFFFFF"
+            android:elevation="4dp"
+            android:padding="20dp">
+
+            <!-- conversion category label -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Conversion Category"
+                android:textStyle="bold"
+                android:textColor="#37474F"
+                android:layout_marginBottom="4dp" />
+
+            <!-- category spinner -->
+            <Spinner
+                android:id="@+id/spinnerCategory"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:padding="12dp"
+                android:layout_marginBottom="16dp" />
+
+            <!-- from label -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="From"
+                android:textStyle="bold"
+                android:textColor="#37474F"
+                android:layout_marginBottom="4dp" />
+
+            <!-- from spinner -->
+            <Spinner
+                android:id="@+id/spinnerFrom"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:padding="12dp"
+                android:layout_marginBottom="8dp" />
+
+            <!-- swap button -->
+            <Button
+                android:id="@+id/btnSwap"
+                android:layout_width="60dp"
+                android:layout_height="48dp"
+                android:text="⇅"
+                android:textSize="20sp"
+                android:layout_gravity="center"
+                android:layout_marginBottom="8dp"
+                android:backgroundTint="#5468FF"
+                android:textColor="#FFFFFF" />
+
+            <!-- to label -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="To"
+                android:textStyle="bold"
+                android:textColor="#37474F"
+                android:layout_marginBottom="4dp" />
+
+            <!-- to spinner -->
+            <Spinner
+                android:id="@+id/spinnerTo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:padding="12dp"
+                android:layout_marginBottom="16dp" />
+
+            <!-- value label -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Value"
+                android:textStyle="bold"
+                android:textColor="#37474F"
+                android:layout_marginBottom="4dp" />
+
+            <!-- input field (now allows negative values) -->
+            <EditText
+                android:id="@+id/editValue"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Enter value"
+                android:inputType="numberSigned|numberDecimal"
+                android:minHeight="48dp"
+                android:backgroundTint="#3949AB"
+                android:padding="12dp"
+                android:layout_marginBottom="20dp" />
+
+            <!-- convert button -->
+            <Button
+                android:id="@+id/btnConvert"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Convert"
+                android:textStyle="bold"
+                android:textColor="#FFFFFF"
+                android:minHeight="48dp"
+                android:backgroundTint="#3949AB"
+                android:layout_marginBottom="20dp" />
+
+            <!-- result display -->
+            <TextView
+                android:id="@+id/txtResult"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Result will appear here"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:textColor="#2E7D32"
+                android:padding="12dp"
+                android:background="#E8F5E9" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>
