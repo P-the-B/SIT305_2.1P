@@ -17,7 +17,7 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
-    // categories
+    // categories shown in the top spinner
     private final String[] categories = {
             "Currency",
             "Fuel Efficiency",
@@ -26,14 +26,14 @@ public class MainActivity extends AppCompatActivity {
             "Temperature"
     };
 
-    // units per category (explicit fixed factors for)
+    // units per category / task conversion items
     private final String[] currencyUnits = {"USD", "AUD", "EUR", "JPY", "GBP"};
     private final String[] fuelUnits = {"mpg", "km/L"};
     private final String[] distanceUnits = {"Nautical Mile (NM)", "Kilometer (km)"};
     private final String[] volumeUnits = {"Gallon (US)", "Liter (L)"};
     private final String[] tempUnits = {"C", "F", "K"};
 
-    // ui references (kept as fields so listeners can use them)
+    // ui fields as class fields so listeners can reach them
     private Spinner spinnerCategory, spinnerFrom, spinnerTo;
     private EditText editValue;
     private TextView txtResult;
@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
-        // connect java to xml views
+        // wire up all the views
         spinnerCategory = findViewById(R.id.spinnerCategory);
         spinnerFrom = findViewById(R.id.spinnerFrom);
         spinnerTo = findViewById(R.id.spinnerTo);
@@ -53,15 +53,13 @@ public class MainActivity extends AppCompatActivity {
         Button btnConvert = findViewById(R.id.btnConvert);
         Button btnSwap = findViewById(R.id.btnSwap);
 
-        // swap button reverses selected units in the two spinners
+        // swap just flips the two spinner positions
         btnSwap.setOnClickListener(v -> {
-
             int fromPosition = spinnerFrom.getSelectedItemPosition();
             int toPosition = spinnerTo.getSelectedItemPosition();
-
             spinnerFrom.setSelection(toPosition);
             spinnerTo.setSelection(fromPosition);
-
+            txtResult.setText("Result will appear here");
         });
 
         // populate category spinner
@@ -72,10 +70,9 @@ public class MainActivity extends AppCompatActivity {
         );
         spinnerCategory.setAdapter(categoryAdapter);
 
-        // when category changes update from/to spinners
+        // when category changes, reload the from/to unit lists
         spinnerCategory.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 
-            // switches available units based on selected category
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String selectedCategory = categories[position];
@@ -90,28 +87,28 @@ public class MainActivity extends AppCompatActivity {
                 spinnerFrom.setAdapter(unitsAdapter);
                 spinnerTo.setAdapter(unitsAdapter);
 
-                txtResult.setText("Result will appear here");
+                // post() waits until the adapter is done before resetting
+                // otherwise setAdapter overwrites this!
+                txtResult.post(() -> txtResult.setText("Result will appear here"));
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) { }
         });
 
-        // convert button click
+        // convert button - validates input then runs the conversion
         btnConvert.setOnClickListener(v -> {
-
-            // validates input runs conversion and displays formatted result
 
             String raw = editValue.getText().toString().trim();
 
-            // protection for empty input
+            // catch empty input
             if (raw.isEmpty()) {
-                Toast.makeText(this, "Enter a value", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Please enter a value", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            // protection for numeric parsing
-            final double value;
+            // catch anything that isn't  a number
+            double value;
             try {
                 value = Double.parseDouble(raw);
             } catch (NumberFormatException ex) {
@@ -123,118 +120,105 @@ public class MainActivity extends AppCompatActivity {
             String from = spinnerFrom.getSelectedItem().toString();
             String to = spinnerTo.getSelectedItem().toString();
 
-            // protection block negative values except for temperature
+            // negative values don't make sense unless its temperature
             if (value < 0 && !category.equals("Temperature")) {
                 Toast.makeText(this, "Value cannot be negative for this category", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            // identity conversion (same units)
+            // same unit selected - just show value back and toast
             if (from.equals(to)) {
-                txtResult.setText(formatResult(value));
+                Toast.makeText(this, "Already in " + to + ", no conversion needed", Toast.LENGTH_SHORT).show();
+                txtResult.setText(formatResult(value, to));
                 return;
             }
 
             double result = convert(category, from, to, value);
-            txtResult.setText(formatResult(result));
+            txtResult.setText(formatResult(result, to));
         });
     }
 
-    // returns unit list for the chosen category
+    // returns whichever unit list matches  selected category
     private String[] getUnitsForCategory(String category) {
         switch (category) {
-            case "Currency":
-                return currencyUnits;
-            case "Fuel Efficiency":
-                return fuelUnits;
-            case "Distance":
-                return distanceUnits;
-            case "Liquid Volume":
-                return volumeUnits;
-            case "Temperature":
-            default:
-                return tempUnits;
+            case "Currency": return currencyUnits;
+            case "Fuel Efficiency": return fuelUnits;
+            case "Distance": return distanceUnits;
+            case "Liquid Volume": return volumeUnits;
+            case "Temperature": return tempUnits;
+            default: return tempUnits;
         }
     }
 
-    // routes conversion to the correct conversion block
+    // which converter to call from selected category
     private double convert(String category, String from, String to, double v) {
         switch (category) {
-            case "Currency":
-                return convertCurrency(from, to, v);
-            case "Fuel Efficiency":
-                return convertFuel(from, to, v);
-            case "Distance":
-                return convertDistance(from, to, v);
-            case "Liquid Volume":
-                return convertVolume(from, to, v);
-            case "Temperature":
-                return convertTemperature(from, to, v);
-            default:
-                return v;
+            case "Currency": return convertCurrency(from, to, v);
+            case "Fuel Efficiency": return convertFuel(from, to, v);
+            case "Distance": return convertDistance(from, to, v);
+            case "Liquid Volume": return convertVolume(from, to, v);
+            case "Temperature": return convertTemperature(from, to, v);
+            default: return v;
         }
     }
 
-    // currency conversion via usd using fixed task rates
+    // currency - convert input to USD first then to the target currency
     private double convertCurrency(String from, String to, double v) {
 
+        // first get everything into USD so i only need one set of rates
         double usd;
         switch (from) {
-            case "USD": usd = v; break;
-            case "AUD": usd = v / 1.55; break;
-            case "EUR": usd = v / 0.92; break;
+            case "USD": usd = v;          break;
+            case "AUD": usd = v / 1.55;   break;
+            case "EUR": usd = v / 0.92;   break;
             case "JPY": usd = v / 148.50; break;
-            case "GBP": usd = v / 0.78; break;
-            default: usd = v;
+            case "GBP": usd = v / 0.78;   break;
+            default:    usd = v;
         }
 
+        // then convert from USD out to whatever currency was selected
         switch (to) {
             case "USD": return usd;
             case "AUD": return usd * 1.55;
             case "EUR": return usd * 0.92;
             case "JPY": return usd * 148.50;
             case "GBP": return usd * 0.78;
-            default: return usd;
+            default:    return usd;
         }
     }
 
-    // fuel efficiency conversion using fixed factor
+    // fuel efficiency - 1 mpg = 0.425 km/L
     private double convertFuel(String from, String to, double v) {
-
-        // 1 mpg = 0.425 km/L
-        if (from.equals("mpg") && to.equals("km/L")) return v * 0.425;
-        if (from.equals("km/L") && to.equals("mpg")) return v / 0.425;
+        if (from.equals("mpg")  && to.equals("km/L")) return v * 0.425;
+        if (from.equals("km/L") && to.equals("mpg"))  return v / 0.425;
         return v;
     }
 
-    // distance conversion using fixed factor
+    // distance - 1 nautical mile = 1.852 km
     private double convertDistance(String from, String to, double v) {
-
-        // 1 nautical mile = 1.852 kilometers
         if (from.equals("Nautical Mile (NM)") && to.equals("Kilometer (km)")) return v * 1.852;
         if (from.equals("Kilometer (km)") && to.equals("Nautical Mile (NM)")) return v / 1.852;
         return v;
     }
 
-    // volume conversion using fixed factor
+    // volume - 1 US gallon = 3.785 liters
     private double convertVolume(String from, String to, double v) {
-
-        // 1 gallon (us) = 3.785 liters
         if (from.equals("Gallon (US)") && to.equals("Liter (L)")) return v * 3.785;
-        if (from.equals("Liter (L)") && to.equals("Gallon (US)")) return v / 3.785;
+        if (from.equals("Liter (L)")  && to.equals("Gallon (US)")) return v / 3.785;
         return v;
     }
 
-    // temperature conversions using task formulas
+    // temperature - convert to celsius first then out to target
     private double convertTemperature(String from, String to, double v) {
 
+        // get to celsius first no matter what the input is
         double c;
-
-        if (from.equals("C")) c = v;
+        if      (from.equals("C")) c = v;
         else if (from.equals("F")) c = (v - 32) / 1.8;
         else if (from.equals("K")) c = v - 273.15;
-        else c = v;
+        else                       c = v;
 
+        // now go from celsius to whatever unit was picked
         if (to.equals("C")) return c;
         if (to.equals("F")) return (c * 1.8) + 32;
         if (to.equals("K")) return c + 273.15;
@@ -242,11 +226,38 @@ public class MainActivity extends AppCompatActivity {
         return c;
     }
 
-    // format output for a cleaner result
-    private String formatResult(double value) {
+    // formats the number and sticks gets the right symbol on it
+    private String formatResult(double value, String unit) {
+        String symbol = getUnitSymbol(unit);
+        String number;
+        if (Math.abs(value) >= 1) number = String.format(Locale.US, "%.2f", value);
+        else                      number = String.format(Locale.US, "%.4f", value);
 
-        if (Math.abs(value) >= 100) return String.format(Locale.US, "%.2f", value);
-        if (Math.abs(value) >= 1) return String.format(Locale.US, "%.2f", value);
-        return String.format(Locale.US, "%.4f", value);
+        // currency symbols sit in front, units go after
+        if (symbol.equals("$") || symbol.equals("A$") || symbol.equals("€") || symbol.equals("£") || symbol.equals("¥")) {
+            return symbol + number;
+        }
+        return number + " " + symbol;
+    }
+
+    // looks up the symbol for whatever unit gets passed in
+    private String getUnitSymbol(String unit) {
+        switch (unit) {
+            case "USD": return "$";
+            case "AUD": return "A$";
+            case "EUR": return "€";
+            case "JPY": return "¥";
+            case "GBP": return "£";
+            case "C": return "°C";
+            case "F": return "°F";
+            case "K": return "K";
+            case "mpg": return "mpg";
+            case "km/L": return "km/L";
+            case "Nautical Mile (NM)": return "NM";
+            case "Kilometer (km)": return "km";
+            case "Gallon (US)": return "gal";
+            case "Liter (L)": return "L";
+            default: return unit;
+        }
     }
 }

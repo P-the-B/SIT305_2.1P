@@ -28,12 +28,11 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:background="#FFFFFF"
-            android:elevation="4dp"
             android:padding="20dp">
 
             <!-- conversion category label -->
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Conversion Category"
                 android:textStyle="bold"
@@ -51,7 +50,7 @@
 
             <!-- from label -->
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="From"
                 android:textStyle="bold"
@@ -65,23 +64,23 @@
                 android:layout_height="wrap_content"
                 android:minHeight="48dp"
                 android:padding="12dp"
-                android:layout_marginBottom="8dp" />
+                android:layout_marginBottom="16dp" />
 
             <!-- swap button -->
             <Button
                 android:id="@+id/btnSwap"
                 android:layout_width="60dp"
-                android:layout_height="48dp"
-                android:text="⇅"
-                android:textSize="20sp"
+                android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginBottom="8dp"
+                android:layout_marginBottom="16dp"
                 android:backgroundTint="#5468FF"
-                android:textColor="#FFFFFF" />
+                android:text="⇅"
+                android:textColor="#FFFFFF"
+                android:textSize="20sp" />
 
             <!-- to label -->
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="To"
                 android:textStyle="bold"
@@ -99,14 +98,14 @@
 
             <!-- value label -->
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Value"
                 android:textStyle="bold"
                 android:textColor="#37474F"
                 android:layout_marginBottom="4dp" />
 
-            <!-- input field (now allows negative values) -->
+            <!-- input field - signed so temperature negatives work -->
             <EditText
                 android:id="@+id/editValue"
                 android:layout_width="match_parent"
@@ -116,7 +115,7 @@
                 android:minHeight="48dp"
                 android:backgroundTint="#3949AB"
                 android:padding="12dp"
-                android:layout_marginBottom="20dp" />
+                android:layout_marginBottom="16dp" />
 
             <!-- convert button -->
             <Button
@@ -128,7 +127,7 @@
                 android:textColor="#FFFFFF"
                 android:minHeight="48dp"
                 android:backgroundTint="#3949AB"
-                android:layout_marginBottom="20dp" />
+                android:layout_marginBottom="16dp" />
 
             <!-- result display -->
             <TextView
